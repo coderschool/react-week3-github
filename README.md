@@ -7,15 +7,16 @@ cd github
 yarn start
 ```
 
-
 [Create a Github application](https://github.com/settings/applications/new). Make sure to set the callback URL to http://localhost:5000
 
 In *THIS* repo, there is a `server.js` file that you can run. Before, we used Instagram's implicit OAuth, which can run on the client side. For GitHub's normal OAuth, we need a local server, which will be called by GitHub to trade the authentication code for an access token.
 
-Add your `clientId` and `secretKey` to the `server.js` in *THIS* REPO. 
-```js
-const clientId = {YOUR CLIENT_ID}
-const secretKey = {YOUR SECRET_KEY}
+Add your `clientId` and `secretKey` to an `env.json` file in *THIS* REPO.
+```JSON
+{
+  "clientId": "{YOUR CLIENT_ID}",
+  "secretKey": "{YOUR SECRET_KEY}"
+}
 ```
 
 From this repo, start up the OAuth server.
@@ -23,7 +24,7 @@ From this repo, start up the OAuth server.
 node server.js
 ```
 
-_Note: You should be careful not to commit this server.js file to GitHub! It contains your private keys. There are a few different strategies for handling secrets. For now, just add server.js to `.gitignore` because we won't be making too many changes to it._
+_Note: You should be careful not to commit this env.json file to GitHub! It contains your private keys._
 
 ## Milestone 1: Architecture diagram
 
@@ -402,7 +403,7 @@ Make sure `server.js` is running. Let's alter our app so we can get an access to
 
 
 ```JSX
-const clientId = {YOUR_CLIENT_ID}
+const {clientId} = require('env.json');
 
 componentWillMount() {
   const existingToken = sessionStorage.getItem('token');

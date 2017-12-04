@@ -1,5 +1,6 @@
 const http = require('http');
 const request = require('request');
+const {clientId, secretKey} = require('env.json');
 
 console.log('started');
 
