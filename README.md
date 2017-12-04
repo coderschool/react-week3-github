@@ -1,6 +1,6 @@
-## Getting started
+## Getting started: Milestone 0.
 
-Create the app
+Create the app.
 ```
 create-react-app github
 cd github
@@ -10,9 +10,9 @@ yarn start
 
 [Create a Github application](https://github.com/settings/applications/new). Make sure to set the callback URL to http://localhost:5000
 
-In *THIS* repo, there is a `server.js` file that you can run. Before, we used Instagram's implicit OAuth, which can run on the client side. For GitHub's normal OAuth, we must use a service to trade the authentication code we get back on the redirect for an access token.
+In *THIS* repo, there is a `server.js` file that you can run. Before, we used Instagram's implicit OAuth, which can run on the client side. For GitHub's normal OAuth, we need a local server, which will be called by GitHub to trade the authentication code for an access token.
 
-Add your `clientId` and `secretKey` to the `server.js` in *THIS* REPO.
+Add your `clientId` and `secretKey` to the `server.js` in *THIS* REPO. 
 ```js
 const clientId = {YOUR CLIENT_ID}
 const secretKey = {YOUR SECRET_KEY}
@@ -23,7 +23,9 @@ From this repo, start up the OAuth server.
 node server.js
 ```
 
-## Milestone 0: Architecture diagram
+_Note: You should be careful not to commit this server.js file to GitHub! It contains your private keys. There are a few different strategies for handling secrets. For now, just add server.js to `.gitignore` because we won't be making too many changes to it._
+
+## Milestone 1: Architecture diagram
 
 We want to build a tabbed Github activity browser.
 
@@ -42,7 +44,7 @@ Here are the GitHub API calls that are relevant for our problem:
 
 Draw up a rough architecture diagram (pen and paper is fine) of how you want to structure this app.
 
-## Milestone 1: Create tabs.
+## Milestone 2: Create tabs.
 
 <img src="./images/proto.png" width="300px"/>
 
@@ -87,7 +89,7 @@ return (
 )
 ```
 
-And let's add some styles to `App.css`
+And let's add some styles to `App.css`. If you need an introduction to CSS Flexbox, [here's a good resource](https://css-tricks.com/snippets/css/a-guide-to-flexbox/). 
 
 ```CSS
 .holder {
@@ -108,9 +110,9 @@ Let's start filling in tabs.
 
 ```JSX
 const tabs = React.Children.map(this.props.children, (child) => {      
-return (
-  <h1>{child.props.name}</h1>
-);
+  return (
+    <h1>{child.props.name}</h1>
+  );
 });
 ```
 
@@ -142,7 +144,7 @@ return (
 }
 ```
 
-Let's now fill in the body
+Let's now fill in the body. We can use `React.Children.forEach`, which goes through all of the child elements. [Documentation here](https://reactjs.org/docs/react-api.html#reactchildren).
 
 ```JSX
 let body;
@@ -392,7 +394,7 @@ Ehh close enough.
 <img src="./images/ScreenM1f.png" width="300px"/>
 
 
-## Milestone 2: Fill in the tabs with organization information
+## Milestone 3: Fill in the tabs with organization information
 
 <img src="./images/ScreenM2b.png" width="300px"/>
 
@@ -611,7 +613,7 @@ render () {
 
 <img src="./images/ScreenM2b.png" width="300px"/>
 
-## Milestone 3: Pre-fetch repos for each organization.
+## Milestone 4: Pre-fetch repos for each organization.
 
 Let's first think through how we want to do this. We want to go through each of our organizations and pre-fetch all repos. We also want to fetch this for our user.
 
@@ -760,7 +762,7 @@ return (
 
 <img src="./images/ScreenM3b.png" width="300px"/>
 
-## Milestone 4: Fill in with feed
+## Milestone 5: Fill in with feed
 
 Let's create a new file `Feed.js`.
 
