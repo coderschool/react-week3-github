@@ -824,3 +824,13 @@ render() {
 ```
 
 <img src="./images/ScreenM4a.png" width="300px"/>
+
+### Bonuses
+
+* Clean up the styling
+
+* Paginate through repos
+
+* Refresh events
+
+
