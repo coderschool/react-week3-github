@@ -1,18 +1,33 @@
 .holder {
   display: flex;
-  flex-direction: row;
+  background: #bbb;
 }
 .tabs {
+  display: flex;  
+}
+.holder.vertical {
+  flex-direction: row;
+}
+.tabs.vertical {
   margin-left: 10px;
-  display: flex;
   flex-direction: column;
 }
-.body {
-  margin-left: 100px;  
+.body.vertical {
+  margin-left: 100px;
+}
+.holder.horizontal {
+  flex-direction: column;
+}
+.tabs.horizontal {
+  flex-direction: row;
+  margin-left: auto;
+}
+.tabs.horizontal h1 {
+  margin-right: 100px;
 }
 .selected {
-  color: red;
+  color: #13f;
 }
 .unselected {
-  color: blue;
+  color: #fff;
 }

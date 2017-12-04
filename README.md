@@ -61,7 +61,7 @@ Start with an `App.js` that renders this:
 ```
 
 We want this to look like:
-<img src="./images/proto.png" width="300px"/>
+<img src="./images/ScreenM1f.png" width="300px"/>
 
 So let's create a `Tabs.js` that will contain both our `TabList` and `Tab` component.
 
@@ -247,7 +247,7 @@ This screws things up a bit.
 
 <img src="./images/ScreenM1c.png" width="300px"/>
 
-This is because if we only select the default tab at `componentDidMount`, we will have no data. Try adding a `console.log` to see this. Instead what we need to do is use `componentWillReceiveProps`. This is a function called whenever props are updated.
+This is because if we only select the default tab at `componentDidMount`, we will have no data. Try adding a `console.log` to see this. Instead what we need to do is *ADD* `componentWillReceiveProps`. This is a function called whenever props are updated. It is not called with initial props, however.
 
 ```JSX
 componentWillReceiveProps(nextProps) {
@@ -271,50 +271,118 @@ This function will be called twice, once with no `Tab` components and the second
 
 <img src="./images/ScreenM1d.png" width="300px"/>
 
-Now let's get a little wild. Let's change our App.js to render.
+Now let's get a little wild. Let's change our App.js to render a nested list.
 ```JSX
-<TabList vertical>
-    <Tab name="a">
-        <TabList horizontal key="a">
-            <Tab name="A1">
-                <h1>HelloA1</h1>
-            </Tab>
-            <Tab name="A2">
-                <h1>HelloA2</h1>
-            </Tab>
-            <Tab name="A3">
-                <h1>HelloA3</h1>
-            </Tab>
+componentDidMount() {
+  this.setState({
+    tabs: [
+      ["a", ["A1", "A2", "A3"]],
+      ["b", ["B1", "B2", "B3"]],
+      ["c", ["C1", "C2", "c3"]]
+    ]
+  })
+}
+
+render() {
+  const tabs = this.state.tabs.map((t) => {
+    const [k, h] = t;
+    const inner = h.map((k2) => {
+      return (<Tab name={k2} key={k2}>
+        <h1>{k2}</h1>
+      </Tab>);
+    });
+    return (
+      <Tab name={k} key={k}>
+        <TabList vertical key={k}>
+          {inner}
         </TabList>
-    </Tab>
-    <Tab name="b">
-        <TabList horizontal key="b">
-            <Tab name="B1">
-                <h1>HelloB1</h1>
-            </Tab>
-            <Tab name="B2">
-                <h1>HelloB2</h1>
-            </Tab>
-            <Tab name="B3">
-                <h1>HelloB3</h1>
-            </Tab>
-        </TabList>
-    </Tab>
-    <Tab name="c">
-        <TabList horizontal key="c">
-            <Tab name="C1">
-                <h1>HelloC1</h1>
-            </Tab>
-            <Tab name="C2">
-                <h1>HelloC2</h1>
-            </Tab>
-            <Tab name="C3">
-                <h1>HelloC3</h1>
-            </Tab>
-        </TabList>
-    </Tab>
-</TabList>
+      </Tab>
+    );
+  });
+
+  return (
+    <TabList horizontal key="root">
+      {tabs}
+    </TabList>
+  );
+}
 ```
 
-These are nested TabLists and we want one to be horizontal and one to be vertical.
+These are nested TabLists and we want one to be horizontal and one to be vertical. Unfortunately, right now it looks something like this:
+
+<img src="./images/ScreenM1e.png" width="300px"/>
+
+* How do we make them horizontal? Well we need to flip the flex-box direction from row to column and vice versa. Our original:
+
+
+```CSS
+.holder {
+  display: flex;
+}
+.tabs {
+  display: flex;  
+}
+```
+```CSS
+.holder.vertical {
+  flex-direction: row;
+}
+.tabs.vertical {
+  margin-left: 10px;
+  flex-direction: column;
+}
+.body.vertical {
+  margin-left: 100px;
+}
+```
+```CSS
+.holder.horizontal {
+  flex-direction: column;
+}
+.tabs.horizontal {
+  flex-direction: row;
+}
+.tabs.horizontal h1 {
+  margin-right: 100px;
+}
+```
+
+And then we will set the direction in `Tabs.js`;
+
+```JSX
+  const direction = this.props.horizontal ? "horizontal" : "vertical";
+  return (
+      <div className={`holder ${direction}`}>
+          <div className={`tabs ${direction}`}>
+          {tabs}
+          </div>
+          <div className={`body ${direction}`}>
+          {body}
+          </div>
+      </div>
+  );
+```
+
+This still looks pretty ugly and nothing like our spec so let's fix up `App.css`.
+
+```CSS
+.holder {
+  display: flex;
+  background: #bbb;
+}
+.selected {
+  color: #13f;
+}
+.unselected {
+  color: #fff;
+}
+.tabs-horizontal {
+  flex-direction: row;
+  margin-left: auto;
+}
+```
+
+Ehh close enough.
+
+<img src="./images/ScreenM1f.png" width="300px"/>
 

@@ -7,6 +7,23 @@ export class TabList extends React.Component {
         selected: null
     };
   }
+
+  componentDidMount() {
+    if (this.state.selected == null) {
+      let defaultTab = React.Children.toArray(this.props.children.map((child) => child.props.name))[0];
+
+      React.Children.forEach(this.props.children, (child) => {
+        if (child.props.default) {
+          defaultTab = child.props.name;
+        }
+      });
+
+      this.setState({
+        selected: defaultTab
+      });
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     if (this.state.selected == null) {
       let defaultTab = React.Children.toArray(nextProps.children.map((child) => child.props.name))[0];
@@ -44,12 +61,14 @@ export class TabList extends React.Component {
         body = child;
       }
     });
+
+    const direction = this.props.horizontal ? "horizontal" : "vertical";
     return (
-        <div className="holder">
-            <div className="tabs">
+        <div className={`holder ${direction}`}>
+            <div className={`tabs ${direction}`}>
             {tabs}
             </div>
-            <div className="body">
+            <div className={`body ${direction}`}>
             {body}
             </div>
         </div>
