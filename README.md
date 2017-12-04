@@ -431,10 +431,110 @@ Let's then try to use this token to fetch data.
 
 ```JSX
 componentDidMount() {
-  fetch(`https://api.github.com/user/orgs?access_token=${this.state.token}`)
+  fetch(`https://api.github.com/user/repos?access_token=${this.state.token}`)
     .then((data) => data.json())
     .then((json) => console.log(json))
 }
 ```
 
+If you take a look at your console you will note that this has pulled a list of your repos.
 
+<img src="./images/ScreenM2a.png" width="100px"/>
+
+Instead of building on top of App.js, let's extract this logic into two higher level components.
+
+Create a `GithubApi.js`.
+
+```JSX
+function withGithubLogin(WrappedComponent, clientId) {
+  return class extends React.Component {
+  }
+}  
+export function withGithub(WrappedComponent, clientId) {
+  const base = class extends React.Component {
+  }
+  return withGithubLogin(base, clientId);
+}
+```
+
+Move over `componentWillMount` into `withGithubLogin`.
+
+```JSX
+componentWillMount() {
+  ...
+}
+render() {
+  return <WrappedComponent
+  token={this.state.token}
+  {...this.props} />
+}
+```
+
+Move over `componentDidMount` into `withGithub`.
+```JSX
+componentDidMount() {
+  fetch(`https://api.github.com/user/orgs?access_token=${this.props.token}`)
+    .then((data) => data.json())
+    .then((json) => console.log(json))
+}
+render() {
+  return <WrappedComponent      
+  {...this.props} />
+}
+```
+
+Move over most of `App.js` into `Homepage.js`
+```JSX
+export default class Homepage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tabs: []
+    };
+  }
+  componentDidMount() {
+    this.setState({
+      tabs: [
+        ["a", ["A1", "A2", "A3"]],
+        ["b", ["B1", "B2", "B3"]],
+        ["c", ["C1", "C2", "c3"]]
+      ]
+    })
+  }
+  render() {
+    const tabs = this.state.tabs.map((t) => {
+      const [k, h] = t;
+      const inner = h.map((k2) => {
+        return (<Tab name={k2} key={k2}>
+          <h1>{k2}</h1>
+        </Tab>);
+      });
+      return (
+        <Tab name={k} key={k}>
+          <TabList vertical key={k}>
+            {inner}
+          </TabList>
+        </Tab>
+      );
+    });
+
+    return (
+      <TabList horizontal key="root">
+        {tabs}
+      </TabList>
+    );
+  }
+}
+```
+
+Call the wrapped version of Homepage from `App.js`.
+```JSX
+class App extends Component {
+  render() {
+    const WrappedHomePage = withGithub(Homepage, clientId);
+    return (
+      <WrappedHomePage />
+    );
+  }
+}
+```
