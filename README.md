@@ -1,22 +1,27 @@
 ## Getting started
 
-* Create the app
-  ```
-  create-react-app github
-  cd github
-  yarn start
-  ```
+Create the app
+```
+create-react-app github
+cd github
+yarn start
+```
 
 
-* [Create a Github application](https://github.com/settings/applications/new). Make sure to set the callback URL to http://localhost:5000
+[Create a Github application](https://github.com/settings/applications/new). Make sure to set the callback URL to http://localhost:5000
 
-* Add your `clientId` and `secretKey` to the server.js in THIS REPO.
+In *THIS* repo, there is a `server.js` file that you can run. Before, we used Instagram's implicit OAuth, which can run on the client side. For GitHub's normal OAuth, we must use a service to trade the authentication code we get back on the redirect for an access token.
 
-* From this repo, start up the OAuth server.
-  ```
-  node server.js
-  ```
+Add your `clientId` and `secretKey` to the `server.js` in *THIS* REPO.
+```js
+const clientId = {YOUR CLIENT_ID}
+const secretKey = {YOUR SECRET_KEY}
+```
 
+From this repo, start up the OAuth server.
+```
+node server.js
+```
 
 ## Milestone 0: Architecture diagram
 
@@ -385,4 +390,51 @@ This still looks pretty ugly and nothing like our spec so let's fix up `App.css`
 Ehh close enough.
 
 <img src="./images/ScreenM1f.png" width="300px"/>
+
+
+## Milestone 2: Fill in the tabs with organization information
+
+<img src="./images/ScreenM22.png" width="300px"/>
+
+Make sure `server.js` is running. Let's alter our app so we can get an access token back from a GitHub login. This will be similar to the Instagram app we made.
+
+
+```JSX
+const clientId = {YOUR_CLIENT_ID}
+
+componentWillMount() {
+  const existingToken = sessionStorage.getItem('token');
+  const accessToken = (window.location.search.split("=")[0] === "?access_token") ? window.location.search.split("=")[1] : null;
+
+  if (!accessToken && !existingToken) {
+    window.location.replace(`https://github.com/login/oauth/authorize?scope=user:email,repo&client_id=${clientId}`)
+  }
+
+  if (accessToken) {
+    console.log(`New accessToken: ${accessToken}`);
+
+    sessionStorage.setItem("token", accessToken);
+    this.setState({
+      token: accessToken
+    });
+  }
+
+  if (existingToken) {
+    this.setState({
+      token: existingToken
+    });
+  }    
+}
+```
+
+Let's then try to use this token to fetch data.
+
+```JSX
+componentDidMount() {
+  fetch(`https://api.github.com/user/orgs?access_token=${this.state.token}`)
+    .then((data) => data.json())
+    .then((json) => console.log(json))
+}
+```
+
 

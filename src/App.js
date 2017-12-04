@@ -10,7 +10,35 @@ class App extends Component {
     };
   }
 
+  componentWillMount() {
+    const existingToken = sessionStorage.getItem('token');
+    const accessToken = (window.location.search.split("=")[0] === "?access_token") ? window.location.search.split("=")[1] : null;
+
+    if (!accessToken && !existingToken) {
+      window.location.replace(`https://github.com/login/oauth/authorize?scope=user:email,repo&client_id=${clientId}`)
+    }
+
+    if (accessToken) {
+      console.log(`New accessToken: ${accessToken}`);
+
+      sessionStorage.setItem("token", accessToken);
+      this.setState({
+        token: accessToken
+      });
+    }
+
+    if (existingToken) {
+      this.setState({
+        token: existingToken
+      });
+    }    
+  }
+
   componentDidMount() {
+    fetch(`https://api.github.com/user/orgs?access_token=${this.state.token}`)
+      .then((data) => data.json())
+      .then((json) => console.log(json));
+
     this.setState({
       tabs: [
         ["a", ["A1", "A2", "A3"]],
