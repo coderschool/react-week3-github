@@ -394,7 +394,7 @@ Ehh close enough.
 
 ## Milestone 2: Fill in the tabs with organization information
 
-<img src="./images/ScreenM22.png" width="300px"/>
+<img src="./images/ScreenM2b.png" width="300px"/>
 
 Make sure `server.js` is running. Let's alter our app so we can get an access token back from a GitHub login. This will be similar to the Instagram app we made.
 
@@ -538,3 +538,76 @@ class App extends Component {
   }
 }
 ```
+
+
+* Now let's abstract out fetch stuff in withGithub so that the component it wraps can access it. Make sure to delete `componentDidMount`.
+```JSX
+get(url) {
+  return fetch(`https://api.github.com/${url}?access_token=${this.props.token}`)
+    .then((data) => data.json())
+}
+render() {
+  return <WrappedComponent      
+  get={this.get.bind(this)}
+  {...this.props} />
+}
+```
+
+You can then modify `Homepage.js` to call this.
+
+```JSX
+componentDidMount() {
+  this.props.get('user/orgs')
+  .then((orgs) => console.log(orgs));
+```
+
+We're now fetching user organizations. Let's set this information into our state.
+
+```JSX
+constructor(props) {
+  super(props);
+  this.state = {
+    orgs: []
+  };
+}
+componentDidMount() {
+  this.props.get('user/orgs')
+  .then(orgs => {
+      this.setState({
+          orgs: orgs
+      });
+  });
+}
+```
+
+And then use it to render our tabs
+
+```JSX
+render () {
+  const tabs = this.state.orgs.map((org) => {
+    return (
+      <Tab name={org.login} key={org.login}>
+        <TabList vertical key={org.login}>
+          <Tab name="A1">
+            <h1>HelloA1</h1>
+          </Tab>
+          <Tab name="A2">
+            <h1>HelloA2</h1>
+          </Tab>
+          <Tab name="A3">
+            <h1>HelloA3</h1>
+          </Tab>
+        </TabList>
+      </Tab>
+    );
+  });
+  return (
+    <TabList horizontal>
+      {tabs}
+    </TabList>
+  );
+}
+```
+
+<img src="./images/ScreenM2b.png" width="300px"/>
+

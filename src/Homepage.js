@@ -5,37 +5,37 @@ export default class Homepage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      tabs: []
+      orgs: []
     };
   }
   componentDidMount() {
-    this.setState({
-      tabs: [
-        ["a", ["A1", "A2", "A3"]],
-        ["b", ["B1", "B2", "B3"]],
-        ["c", ["C1", "C2", "c3"]]
-      ]
-    })
+    this.props.get('user/orgs')
+    .then(orgs => {
+        this.setState({
+            orgs: orgs
+        });
+    });
   }
-  render() {
-    const tabs = this.state.tabs.map((t) => {
-      const [k, h] = t;
-      const inner = h.map((k2) => {
-        return (<Tab name={k2} key={k2}>
-          <h1>{k2}</h1>
-        </Tab>);
-      });
+  render () {
+    const tabs = this.state.orgs.map((org) => {
       return (
-        <Tab name={k} key={k}>
-          <TabList vertical key={k}>
-            {inner}
+        <Tab name={org.login} key={org.login}>
+          <TabList vertical key={org.login}>
+            <Tab name="A1">
+              <h1>HelloA1</h1>
+            </Tab>
+            <Tab name="A2">
+              <h1>HelloA2</h1>
+            </Tab>
+            <Tab name="A3">
+              <h1>HelloA3</h1>
+            </Tab>
           </TabList>
         </Tab>
       );
     });
-
     return (
-      <TabList horizontal key="root">
+      <TabList horizontal>
         {tabs}
       </TabList>
     );

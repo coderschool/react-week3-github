@@ -35,15 +35,15 @@ function withGithubLogin(WrappedComponent, clientId) {
 }  
 export function withGithub(WrappedComponent, clientId) {
   const base = class extends React.Component {
-    componentDidMount() {
-      fetch(`https://api.github.com/user/repos?access_token=${this.props.token}`)
+    get(url) {
+      return fetch(`https://api.github.com/${url}?access_token=${this.props.token}`)
         .then((data) => data.json())
-        .then((json) => console.log(json));
     }
     render() {
       return <WrappedComponent      
-        {...this.props} />
-    }    
+      get={this.get.bind(this)}
+      {...this.props} />
+    }
   }
   return withGithubLogin(base, clientId);
 }
