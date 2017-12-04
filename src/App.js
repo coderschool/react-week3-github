@@ -3,18 +3,28 @@ import './App.css';
 import {Tab, TabList} from './Tabs.js';
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tabs: []
+    };
+  }
+
+  componentDidMount() {
+    this.setState({
+      tabs: ["a", "b", "c"]
+    })
+  }
+
   render() {
+    const tabs = this.state.tabs.map((t) => (
+      <Tab name={t} key={t}>
+        <h1>Hello{t}</h1>
+      </Tab>
+    ));
     return (
       <TabList>
-          <Tab name="a">
-              <h1>HelloA</h1>
-          </Tab>
-          <Tab name="b">
-              <h1>HelloB</h1>
-          </Tab>
-          <Tab name="c">
-              <h1>HelloC</h1>                
-          </Tab>
+        {tabs}
       </TabList>
     );
   }

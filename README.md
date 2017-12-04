@@ -158,5 +158,163 @@ export class Tab extends Component {
 }
 ```
 
-<img src="./images/ScreenM1.png" width="300px"/>
+<img src="./images/ScreenM1a.png" width="300px"/>
+
+Now we can enable selection for the tabs.
+
+```JSX
+<h1
+  ...
+  onClick={(e) => this.select(child.props.name)}>
+```
+
+```JSX
+select(item) {
+  this.setState({
+      selected: item
+  });
+}
+```
+
+We also want to add defaulting for the tabs because we can't just directly specify `this.state.selected` as we will be using `TabList` as a library.
+
+```JSX
+constructor(props) {
+  super(props);
+  this.state = {
+    selected: null
+  };
+}
+```
+
+```
+componentDidMount() {
+  if (this.state.selected == null) {
+    let defaultTab = React.Children.toArray(this.props.children.map((child) => child.props.name))[0];
+
+    React.Children.forEach(this.props.children, (child) => {
+      if (child.props.default) {
+        defaultTab = child.props.name;
+      }
+    });
+
+    this.setState({
+      selected: defaultTab
+    });
+  }
+}
+```
+
+Try setting Tab b to default.
+
+<img src="./images/ScreenM1b.png" width="300px"/>
+
+One thing we didn't discuss in lecture is what happens when the children are dynamic.
+
+Let's modify our App.js a little. Suppose we need to load via AJAX what tabs we should show.
+
+```JSX
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tabs: []
+    };
+  }
+
+  componentDidMount() {
+    this.setState({
+      tabs: ["a", "b", "c"]
+    })
+  }
+
+  render() {
+    const tabs = this.state.tabs.map((t) => (
+      <Tab name={t} key={t}>
+        <h1>Hello{t}</h1>
+      </Tab>
+    ));
+    return (
+      <TabList>
+        {tabs}
+      </TabList>
+    );
+  }
+}
+```
+
+This screws things up a bit.
+
+<img src="./images/ScreenM1c.png" width="300px"/>
+
+This is because if we only select the default tab at `componentDidMount`, we will have no data. Try adding a `console.log` to see this. Instead what we need to do is use `componentWillReceiveProps`. This is a function called whenever props are updated.
+
+```JSX
+componentWillReceiveProps(nextProps) {
+  if (this.state.selected == null) {
+    let defaultTab = React.Children.toArray(nextProps.children.map((child) => child.props.name))[0];
+
+    React.Children.forEach(nextProps.children, (child) => {
+      if (child.props.default) {
+        defaultTab = child.props.name;
+      }
+    });
+
+    this.setState({
+      selected: defaultTab
+    });
+  }
+}
+```
+
+This function will be called twice, once with no `Tab` components and the second time with three `Tab` components.
+
+<img src="./images/ScreenM1d.png" width="300px"/>
+
+Now let's get a little wild. Let's change our App.js to render.
+```JSX
+<TabList vertical>
+    <Tab name="a">
+        <TabList horizontal key="a">
+            <Tab name="A1">
+                <h1>HelloA1</h1>
+            </Tab>
+            <Tab name="A2">
+                <h1>HelloA2</h1>
+            </Tab>
+            <Tab name="A3">
+                <h1>HelloA3</h1>
+            </Tab>
+        </TabList>
+    </Tab>
+    <Tab name="b">
+        <TabList horizontal key="b">
+            <Tab name="B1">
+                <h1>HelloB1</h1>
+            </Tab>
+            <Tab name="B2">
+                <h1>HelloB2</h1>
+            </Tab>
+            <Tab name="B3">
+                <h1>HelloB3</h1>
+            </Tab>
+        </TabList>
+    </Tab>
+    <Tab name="c">
+        <TabList horizontal key="c">
+            <Tab name="C1">
+                <h1>HelloC1</h1>
+            </Tab>
+            <Tab name="C2">
+                <h1>HelloC2</h1>
+            </Tab>
+            <Tab name="C3">
+                <h1>HelloC3</h1>
+            </Tab>
+        </TabList>
+    </Tab>
+</TabList>
+```
+
+These are nested TabLists and we want one to be horizontal and one to be vertical.
 
