@@ -10,7 +10,7 @@ export class TabList extends React.Component {
 
   componentDidMount() {
     if (this.state.selected == null) {
-      let defaultTab = React.Children.toArray(this.props.children.map((child) => child.props.name))[0];
+      let defaultTab = React.Children.toArray(this.props.children).map((child) => child.props.name)[0];
 
       React.Children.forEach(this.props.children, (child) => {
         if (child.props.default) {

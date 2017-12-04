@@ -195,7 +195,7 @@ constructor(props) {
 ```
 componentDidMount() {
   if (this.state.selected == null) {
-    let defaultTab = React.Children.toArray(this.props.children.map((child) => child.props.name))[0];
+    let defaultTab = React.Children.toArray(this.props.children).map((child) => child.props.name)[0];
 
     React.Children.forEach(this.props.children, (child) => {
       if (child.props.default) {
@@ -257,7 +257,7 @@ This is because if we only select the default tab at `componentDidMount`, we wil
 ```JSX
 componentWillReceiveProps(nextProps) {
   if (this.state.selected == null) {
-    let defaultTab = React.Children.toArray(nextProps.children.map((child) => child.props.name))[0];
+    let defaultTab = React.Children.toArray(nextProps.children).map((child) => child.props.name)[0];
 
     React.Children.forEach(nextProps.children, (child) => {
       if (child.props.default) {
@@ -611,3 +611,151 @@ render () {
 
 <img src="./images/ScreenM2b.png" width="300px"/>
 
+## Milestone 3: Pre-fetch repos for each organization.
+
+Let's first think through how we want to do this. We want to go through each of our organizations and pre-fetch all repos. We also want to fetch this for our user.
+
+The best way to do this is to use `Promise.all`, which joins together a list of promises into a promise of list. This will make more sense soon.
+
+```bash
+yarn add lodash
+```
+
+```JSX
+import _ from 'lodash';
+```
+
+So let's sketch through what we want to do here. A pen and paper could be helpful for this.
+
+We want to iterate through the orgs that we get back, creating a new promise for each (this is called forking) to request the repos for that organization. We then want to join these back together with `Promise.all` and set state appropriately.
+
+We first want to define our empty state. We have an empty object to track orgs and an array to track our own repos.
+
+```JSX
+constructor(props) {
+  super(props);
+  this.state = {
+    orgs: {},
+    self: []
+  }
+}
+```
+
+In `componentDidMount`, we fetch orgs:
+```JSX
+this.props.get('user/orgs')
+```
+
+Then we make our requests, while keeping track of the name of the organization.
+```JSX
+.then(orgs => {
+  const urls = orgs.map(org => [org.login, `orgs/${org.login}/repos`]);
+  const fork = urls.map(obj => {
+    const [name, url] = obj;
+    return this.props.get(url).then(data => [name, data]);
+  });
+  return Promise.all(fork);
+})
+```
+
+Then we zip the information back together into an object.
+```JSX
+.then(repos => {
+  const keys = repos.map((r) => r[0]);
+  const vals = repos.map((r) => r[1]);
+  this.setState({
+    orgs: _.zipObject(keys, vals)
+  });
+});
+```
+
+Concurrently, we can just grab user repos.
+```JSX
+this.props.get('user/repos')
+.then(repos => {
+  this.setState({
+    self: repos
+  });
+});
+```
+
+We end up with a state that looks like:
+```JSON
+{
+  orgs: {
+    org1: [org1/r1],
+    org2: [org2/r2, org2/r3]
+  }
+  self: [
+    self/r4,
+    self/r5
+  ]
+}
+```
+
+Let's figure out a good way to render this. Let's start with `self`.
+
+```JSX
+render () {
+  const selfTabs = this.state.self.map((selfRepo) => {
+    return (
+      <Tab name={selfRepo.name} key={selfRepo.name}>
+        <h1>{selfRepo.full_name}</h1>
+      </Tab>
+    );
+  });
+
+  return (
+    <TabList horizontal>
+      <Tab name="self" key="self">
+        <TabList vertical key="self">
+          {selfTabs}          
+        </TabList>
+      </Tab>
+    </TabList>
+  );
+}
+```
+
+This should result in something like this.
+
+<img src="./images/ScreenM3a.png" width="300px"/>
+
+We can then construct tabs for the organization repos.
+
+```JSX
+const orgTabs = _.keys(this.state.orgs).map((org) => {
+  const orgRepos = this.state.orgs[org].map((repo) => {
+    return (
+      <Tab name={repo.name} key={repo.name}>
+        <h1>{repo.full_name}</h1>
+      </Tab>
+    )
+  });
+
+  return (
+    <Tab name={org} key={org}>
+      <TabList vertical key={org}>
+        {orgRepos}
+      </TabList>
+    </Tab>
+  );
+});
+```
+
+And insert into our render.
+
+```JSX
+return (
+  <TabList horizontal>
+    <Tab name="self" key="self">
+      <TabList vertical key="self">
+        {selfTabs}          
+      </TabList>
+    </Tab>
+    {orgTabs}
+  </TabList>
+);
+```
+
+<img src="./images/ScreenM3b.png" width="300px"/>
