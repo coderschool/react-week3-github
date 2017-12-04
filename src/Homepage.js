@@ -1,7 +1,12 @@
 import React from 'react';
 import {Tab, TabList} from './Tabs.js';
-import _ from 'lodash';
 import Feed from './Feed.js';
+
+const zipObject = (props, values) => {  
+  return props.reduce((prev, prop, i) => {
+    return Object.assign(prev, { [prop]: values[i] });
+  }, {});
+};
 
 export default class Homepage extends React.Component {
   constructor(props) {
@@ -27,7 +32,7 @@ export default class Homepage extends React.Component {
         const keys = repos.map((r) => r[0]);
         const vals = repos.map((r) => r[1]);
         this.setState({
-          orgs: _.zipObject(keys, vals)
+          orgs: zipObject(keys, vals)
         });
     });
     this.props.get('user/repos')
@@ -46,7 +51,7 @@ export default class Homepage extends React.Component {
       );
     });
 
-    const orgTabs = _.keys(this.state.orgs).map((org) => {
+    const orgTabs = Object.keys(this.state.orgs).map((org) => {
       const orgRepos = this.state.orgs[org].map((repo) => {
         return (
           <Tab name={repo.name} key={repo.name}>

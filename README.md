@@ -403,7 +403,7 @@ Make sure `server.js` is running. Let's alter our app so we can get an access to
 
 
 ```JSX
-const {clientId} = require('env.json');
+const {clientId} = require('./env.json');
 
 componentWillMount() {
   const existingToken = sessionStorage.getItem('token');
@@ -620,14 +620,6 @@ Let's first think through how we want to do this. We want to go through each of 
 
 The best way to do this is to use `Promise.all`, which joins together a list of promises into a promise of list. This will make more sense soon.
 
-```bash
-yarn add lodash
-```
-
-```JSX
-import _ from 'lodash';
-```
-
 So let's sketch through what we want to do here. A pen and paper could be helpful for this.
 
 We want to iterate through the orgs that we get back, creating a new promise for each (this is called forking) to request the repos for that organization. We then want to join these back together with `Promise.all` and set state appropriately.
@@ -663,11 +655,17 @@ Then we make our requests, while keeping track of the name of the organization.
 
 Then we zip the information back together into an object.
 ```JSX
+const zipObject = (props, values) => {  
+  return props.reduce((prev, prop, i) => {
+    return Object.assign(prev, { [prop]: values[i] });
+  }, {});
+};
+
 .then(repos => {
   const keys = repos.map((r) => r[0]);
   const vals = repos.map((r) => r[1]);
   this.setState({
-    orgs: _.zipObject(keys, vals)
+    orgs: zipObject(keys, vals)
   });
 });
 ```
@@ -727,7 +725,7 @@ This should result in something like this.
 We can then construct tabs for the organization repos.
 
 ```JSX
-const orgTabs = _.keys(this.state.orgs).map((org) => {
+const orgTabs = Object.keys(this.state.orgs).map((org) => {
   const orgRepos = this.state.orgs[org].map((repo) => {
     return (
       <Tab name={repo.name} key={repo.name}>
