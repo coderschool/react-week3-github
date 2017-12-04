@@ -759,3 +759,68 @@ return (
 ```
 
 <img src="./images/ScreenM3b.png" width="300px"/>
+
+## Milestone 4: Fill in with feed
+
+Let's create a new file `Feed.js`.
+
+```JSX
+export default class Feed extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      events: []
+    }
+  }
+
+  render() {
+    return (
+      <h1>{this.props.repo.full_name}</h1>
+    );
+  }
+}
+```
+
+And let's replace the `<h1>` tags with `<Feed>`
+
+```JSX
+<Tab name={repo.name} key={repo.name}>
+  <Feed repo={repo} get={this.props.get}/>
+</Tab>
+```
+
+And fetch events on mount
+```JSX
+componentDidMount() {
+  const name = this.props.repo.full_name;
+  this.props.get(`repos/${name}/events`)
+  .then(events => this.setState({events: events}));    
+}
+```
+
+Now you can consume the events and generate a list of events
+
+```JSX
+render() {
+  const events = this.state.events.length ? this.state.events.map((e) => {
+    return (
+      <div className="event">{e.actor.login} {e.type} {e.payload.head}</div>
+    );
+  }) : (<h2>none</h2>);
+  return (
+    <div>
+      {events}
+    </div>
+  );
+}
+```
+
+```CSS
+.event {
+  color: #fff;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+```
+
+<img src="./images/ScreenM4a.png" width="300px"/>

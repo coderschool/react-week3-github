@@ -1,6 +1,7 @@
 import React from 'react';
 import {Tab, TabList} from './Tabs.js';
 import _ from 'lodash';
+import Feed from './Feed.js';
 
 export default class Homepage extends React.Component {
   constructor(props) {
@@ -40,7 +41,7 @@ export default class Homepage extends React.Component {
     const selfTabs = this.state.self.map((selfRepo) => {
       return (
         <Tab name={selfRepo.name} key={selfRepo.name}>
-          <h1>{selfRepo.full_name}</h1>
+          <Feed repo={selfRepo} get={this.props.get}/>
         </Tab>
       );
     });
@@ -49,7 +50,7 @@ export default class Homepage extends React.Component {
       const orgRepos = this.state.orgs[org].map((repo) => {
         return (
           <Tab name={repo.name} key={repo.name}>
-            <h1>{repo.full_name}</h1>
+            <Feed repo={repo} get={this.props.get}/>
           </Tab>
         )
       });
